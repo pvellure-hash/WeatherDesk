@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WeatherDesk</title>
+  <link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+  <header>
+    <h1>WeatherDesk</h1>
+    <p>Current weather for any city. Data from <a href="https://open-meteo.com/">Open-Meteo</a>.</p>
+  </header>
+
+  <div id="libwarn" class="notice" hidden>
+    The page libraries are missing. Run <code>scripts\Add-VendoredLibs.ps1</code> once, then reload this page.
+  </div>
+
+  <main>
+    <section class="card">
+      <h2>Look up a city</h2>
+      <form id="lookupForm" novalidate>
+        <label>City
+          <input type="text" id="city" name="city" placeholder="Victoria" />
+        </label>
+        <label>Country code (optional)
+          <input type="text" id="country" name="country" maxlength="2" placeholder="CA" />
+        </label>
+        <button type="submit">Get weather</button>
+      </form>
+      <div id="lookupError" class="error" hidden></div>
+      <div id="result" class="result" hidden>
+        <dl>
+          <dt>City</dt><dd id="rCity"></dd>
+          <dt>Temperature</dt><dd id="rTemp"></dd>
+          <dt>Wind</dt><dd id="rWind"></dd>
+          <dt>Feels</dt><dd id="rComfort"></dd>
+          <dt>Observed</dt><dd id="rObserved"></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Compare cities</h2>
+      <form id="compareForm" novalidate>
+        <label>Cities (comma separated, up to 5)
+          <input type="text" id="cities" name="cities" placeholder="Victoria, Toronto, Vancouver" />
+        </label>
+        <button type="submit">Compare</button>
+      </form>
+      <div id="compareError" class="error" hidden></div>
+      <div id="compareResult" class="result" hidden>
+        <dl>
+          <dt>Warmest</dt><dd id="cWarmest"></dd>
+          <dt>Coldest</dt><dd id="cColdest"></dd>
+          <dt>Average</dt><dd id="cAverage"></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Recent searches</h2>
+      <p class="muted">The last 5 different cities you looked up, newest first.</p>
+      <ul id="recent"></ul>
+      <p id="recentEmpty" class="muted">Nothing yet.</p>
+    </section>
+
+    <section class="card">
+      <h2>How to read the results</h2>
+      <div class="legend">
+        <table>
+          <tr><th>Wind (km/h)</th><th>Description</th></tr>
+          <tr><td>under 2</td><td>Calm</td></tr>
+          <tr><td>2 to under 20</td><td>Light</td></tr>
+          <tr><td>20 to under 40</td><td>Moderate</td></tr>
+          <tr><td>40 to under 62</td><td>Strong</td></tr>
+          <tr><td>62 or more</td><td>Storm</td></tr>
+        </table>
+        <table>
+          <tr><th>Temperature (&deg;C)</th><th>Feels</th></tr>
+          <tr><td>below -10</td><td>Bitterly cold</td></tr>
+          <tr><td>-10 to under 0</td><td>Freezing</td></tr>
+          <tr><td>0 to under 10</td><td>Cold</td></tr>
+          <tr><td>10 to under 18</td><td>Cool</td></tr>
+          <tr><td>18 to under 25</td><td>Pleasant</td></tr>
+          <tr><td>25 to under 32</td><td>Warm</td></tr>
+          <tr><td>32 or more</td><td>Hot</td></tr>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="lib/jquery/jquery.min.js"></script>
+  <script src="lib/jquery-validate/jquery.validate.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>

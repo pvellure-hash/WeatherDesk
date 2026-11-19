@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore
+        run: dotnet restore WeatherDesk.sln
+      - name: Build
+        run: dotnet build WeatherDesk.sln --no-restore --configuration Release
+      - name: Test
+        run: dotnet test WeatherDesk.sln --no-build --configuration Release
+      - name: List vulnerable packages (information only)
+        run: dotnet list WeatherDesk.sln package --vulnerable --include-transitive
+        continue-on-error: true
