@@ -15,6 +15,7 @@ These override everything else in this file. If a rule below conflicts with what
 5. **Never guess.** Do not invent a version number, a package name, an API, a file path or a behaviour. If you cannot confirm it from the repository, from the build, or from a tool result, say you could not confirm it.
 6. **Prove it.** Build and run the tests before you say you are done. Say exactly what you ran and what happened. If you could not run something, say so plainly.
 7. **Explain what you did in a way a reviewer can check** (section 4). A change that works but cannot be explained is not finished.
+8. **Keep the documentation true.** If your change makes something in `docs/` wrong, fix that document in the same change. If it does not, leave the docs alone (section 14).
 
 ## 2. Repository layout
 
@@ -27,10 +28,12 @@ These override everything else in this file. If a rule below conflicts with what
 | `Directory.Packages.props` | Central NuGet package versions for every project. |
 | `Directory.Build.props` | Settings shared by every project (target framework, nullable, analyzers, NuGet audit). |
 | `README.md` | Contains the **Behaviour reference**: how the app is meant to behave. |
+| `docs/` and `CHANGELOG.md` | The knowledge documentation and the change log. Keep them true (section 14). |
 | `scripts/` | Helper scripts, including `Add-VendoredLibs.ps1`, which downloads the checked-in JavaScript libraries. |
+| `scripts/check-docs.py` | Checks the docs against the repository. Run it; do not edit it unless the ticket is about it. |
 | `.github/` | CI workflow and this file. Off limits. |
 
-Do not edit anything in `bin/`, `obj/`, `.vs/` or `TestResults/`. Do not edit anything outside the folders the ticket and the delivery console allow. By default that means `src/` and `tests/`. If a correct fix needs a file outside them (for example `Directory.Packages.props` or `scripts/`), do not edit it silently: say in your summary which file would need to change and why.
+Do not edit anything in `bin/`, `obj/`, `.vs/` or `TestResults/`. Do not edit anything outside the folders the ticket and the delivery console allow. By default that means `src/` and `tests/`, plus `docs/` and `CHANGELOG.md` for the documentation updates that section 14 requires. If a correct fix needs a file outside them (for example `Directory.Packages.props` or `scripts/`), do not edit it silently: say in your summary which file would need to change and why.
 
 ## 3. How to work on a ticket
 
@@ -43,8 +46,9 @@ Follow these steps in order.
 5. **Write a failing test first** where the ticket is about behaviour (section 9). Run it and confirm it fails for the reason the ticket describes.
 6. **Make the smallest change** that fixes the cause and satisfies every acceptance criterion.
 7. **Run the checks** in section 6 and confirm the new test now passes and nothing else broke.
-8. **Review your own diff** line by line. Remove anything that is not needed for the ticket (stray whitespace changes, unrelated edits, debug output, temporary files).
-9. **Write the summary** in the format in section 4.
+8. **Update the documentation** that your change affects, add a `CHANGELOG.md` line, and run `python scripts/check-docs.py` (section 14).
+9. **Review your own diff** line by line. Remove anything that is not needed for the ticket (stray whitespace changes, unrelated edits, debug output, temporary files).
+10. **Write the summary** in the format in section 4.
 
 ## 4. What your summary must contain
 
@@ -55,9 +59,10 @@ Someone has to understand and take responsibility for this change, so write for 
 3. **Acceptance criteria.** Each criterion from the ticket with a clear met or not met, and how you know.
 4. **Tests.** Each test you added or changed, and whether it failed before the fix and passes now.
 5. **Commands run.** The exact commands and the result of each (for example "27 passed, 0 failed", warning count before and after).
-6. **Not changed, on purpose.** Anything you noticed but left alone, and anything outside your allowed folders that may also need a change.
-7. **Risk and things to check.** What could break, what a person should try by hand (for example "look up Victoria on the page and check the Wind line").
-8. **Could not do or could not confirm.** Be explicit. Never claim something worked if you did not run it.
+6. **Documentation.** Each document you updated and why, the `CHANGELOG.md` line you added, the result of `check-docs.py`, and any document you checked and deliberately left unchanged because it is still correct.
+7. **Not changed, on purpose.** Anything you noticed but left alone, and anything outside your allowed folders that may also need a change.
+8. **Risk and things to check.** What could break, what a person should try by hand (for example "look up Victoria on the page and check the Wind line").
+9. **Could not do or could not confirm.** Be explicit. Never claim something worked if you did not run it.
 
 ## 5. Git and repository hygiene
 
@@ -203,6 +208,7 @@ Stop, change nothing more, and say clearly what is blocking you if any of these 
 - You would have to change the behaviour of something that the ticket does not mention.
 - A needed package version, file or API cannot be confirmed to exist.
 - The build or tests fail for a reason you cannot explain.
+- A ticket asks you to document something the code does not do, or a number or behaviour you cannot confirm. Do not write it down; say what is true and what you could not confirm.
 - You find what looks like a secret, a credential or personal data in the repository. Do not copy it anywhere.
 
 Stopping with a clear explanation is a good result. A wrong change that looks finished is a bad one.
@@ -219,5 +225,52 @@ Before you write your summary, check every line:
 - [ ] `dotnet test WeatherDesk.sln` passes, with no test deleted, skipped or weakened.
 - [ ] For dependency work, the vulnerable-package list was run before and after and I reported both.
 - [ ] Every user of a changed library was checked, and the related configuration was checked.
+- [ ] I updated every document in `docs/` that my change made wrong, left correct documents alone, and added a `CHANGELOG.md` line.
+- [ ] `python scripts/check-docs.py` passes, and I read the prose of each document I touched.
 - [ ] I did not commit, push, branch, or add any agent or scratch file.
 - [ ] My summary follows section 4 and says plainly what I did not do or could not confirm.
+
+## 14. Documentation
+
+The knowledge documentation is in `docs/` (start at `docs/README.md`) and the change log is `CHANGELOG.md`. Documentation that is out of date is worse than none, so it is part of every change.
+
+### 14.1 When to update
+
+1. **Use the map in `docs/README.md` ("Which document to update").** After your code change, read each document the map names for your kind of change, and compare every statement in it with the code and with what you did.
+2. **Update the document when a statement is now false or missing because of your change.** Typical cases:
+   - A package or library version changed: both tables in `docs/dependencies.md`, and `docs/frontend.md` if it is a script library (its file list names versions).
+   - The script download address for a library changed: say so in `docs/dependencies.md`.
+   - A status code, parameter, response body or error message changed: `docs/api-reference.md`.
+   - A timeout, port, setting, file or external call changed: `docs/configuration.md`.
+   - Console output, error messages or symptoms a person would see changed: `docs/troubleshooting.md`, including any line that quotes the old output.
+   - Structure, flow or interfaces changed: `docs/architecture.md`.
+3. **Do not touch a document that is still correct.** Do not reword, reformat, reorder or "improve" it. A fix that needed no documentation change is a normal outcome; say in your summary which documents you checked.
+4. **Update the whole document, not only the line that first came to mind.** Search `docs/` and `README.md` for the old value (a version number, a status code, a message) and fix every occurrence that is now wrong.
+5. **The root `README.md` "Behaviour reference" is the specification.** Do not change it to match the code. If the code and the specification disagree, the ticket decides which is right; if the ticket does not say, stop and ask (section 12).
+
+### 14.2 How to write
+
+- Describe only what you have confirmed in the code, the build output or a command you ran. Never invent a version, limit, port, setting, file name or behaviour to fill a gap. If you cannot confirm something, leave it out or say it is unconfirmed.
+- Keep the document's existing structure, tone and table format. Plain, short sentences. Tables stay tables.
+- Keep the marker comments in `docs/dependencies.md` (`<!-- nuget:start -->` and the others). The checker reads the tables between them.
+- Use relative links between documents and make sure they resolve.
+- Write what is true **now**, not the history. History goes in `CHANGELOG.md`.
+- A new decision that a future reader may question gets a short decision record in `docs/decisions/` (`ADR-000N-title.md`, with Status, Context, Decision, Consequences). Do not create one for routine fixes.
+
+### 14.3 The change log
+
+Add one line under **Unreleased** in `CHANGELOG.md` for every fix, upgrade or user-visible change. One sentence, plain words, what changed and for whom, for example "Wind of exactly 20 km/h is now described as Moderate." Do not add a line for a documentation-only fix of a typo. Do not edit released sections.
+
+### 14.4 Checking
+
+- Run `python scripts/check-docs.py`. It checks that the versions in `docs/dependencies.md` match `Directory.Packages.props` and the checked-in library files, and that links resolve. It exits with an error if they do not. Fix the documents, never the script.
+- The script cannot read prose. Read every sentence of each document you changed and every document the map names for your change, and check it against the code.
+- If the checked-in libraries are not in the repository yet, the script prints a note instead of checking them. Say so in your summary.
+
+### 14.5 Documentation-only tickets
+
+When the ticket is only about documentation:
+- Change only files in `docs/`, `CHANGELOG.md` and (if the ticket says so) the root `README.md`. Do not change code.
+- Verify each statement you write against the code, a command or a setting. Quote the file and line you relied on in your summary.
+- If the ticket asks you to document something the code does not do (for example a feature that does not exist, a setting that is not read, a number you cannot find), do not write it. Report what you found instead. Documenting something false to satisfy a ticket is a failure.
+- If the ticket points at a document that is wrong, check the other documents for the same mistake.
