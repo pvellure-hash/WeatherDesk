@@ -32,10 +32,18 @@ public class WindDescriberTests
 public class ComfortRaterTests
 {
     [Theory]
+    [InlineData(-15.0, "Bitterly cold")]
+    [InlineData(-10.0, "Freezing")]
+    [InlineData(-8.0, "Freezing")]
+    [InlineData(0.0, "Cold")]
     [InlineData(5.0, "Cold")]
+    [InlineData(10.0, "Cool")]
     [InlineData(12.0, "Cool")]
+    [InlineData(18.0, "Pleasant")]
     [InlineData(20.0, "Pleasant")]
+    [InlineData(25.0, "Warm")]
     [InlineData(28.0, "Warm")]
+    [InlineData(32.0, "Hot")]
     [InlineData(35.0, "Hot")]
     public void Rates_typical_temperatures(double celsius, string expected)
     {
