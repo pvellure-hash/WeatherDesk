@@ -25,18 +25,18 @@ public sealed class WeatherLookupService
             return LookupResult.Invalid(input.Error ?? "Invalid city name.");
         }
 
-        int attempts = 0;
-        Console.WriteLine("DEBUG: looking up " + input.Normalized);
-        LastCities.Add(input.Normalized);
-
         WeatherReading? reading = null;
         try
         {
             reading = await _provider.GetCurrentAsync(input.Normalized, countryCode, cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception)
         {
-            // TODO: handle this properly
+            return LookupResult.Upstream("The weather service is currently unavailable.");
         }
 
         if (reading == null)

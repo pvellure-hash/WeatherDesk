@@ -2,6 +2,8 @@ using WeatherDesk.Core.Abstractions;
 using WeatherDesk.Core.Models;
 using WeatherDesk.Core.Providers;
 using WeatherDesk.Core.Services;
+using Microsoft.AspNetCore.Http;
+using WeatherDesk.Web;
 
 namespace WeatherDesk.Tests;
 
@@ -84,14 +86,23 @@ public class WeatherLookupServiceTests
     private sealed class FakeProvider : IWeatherProvider
     {
         private readonly WeatherReading? _reading;
+        private readonly Exception? _exception;
 
-        public FakeProvider(WeatherReading? reading)
+        public FakeProvider(WeatherReading? reading, Exception? exception = null)
         {
             _reading = reading;
+            _exception = exception;
         }
 
-        public Task<WeatherReading?> GetCurrentAsync(string city, string? countryCode, CancellationToken cancellationToken = default) =>
-            Task.FromResult(_reading);
+        public Task<WeatherReading?> GetCurrentAsync(string city, string? countryCode, CancellationToken cancellationToken = default)
+        {
+            if (_exception != null)
+            {
+                throw _exception;
+            }
+
+            return Task.FromResult(_reading);
+        }
     }
 
     private static WeatherLookupService CreateService(WeatherReading? reading) =>
@@ -129,5 +140,43 @@ public class WeatherLookupServiceTests
         var result = await service.LookupAsync("Nowhereville", null);
 
         Assert.Equal(LookupStatus.NotFound, result.Status);
+    }
+
+    [Fact]
+    public async Task Reports_upstream_error_when_the_provider_fails()
+    {
+        var store = new FakeStore();
+        var provider = new FakeProvider(null, new HttpRequestException("network failure"));
+        var service = new WeatherLookupService(provider, new RecentSearchService(store));
+
+        var result = await service.LookupAsync("Victoria", "CA");
+
+        Assert.Equal(LookupStatus.UpstreamError, result.Status);
+        Assert.Equal("The weather service is currently unavailable.", result.Error);
+        Assert.DoesNotContain("network failure", result.Error);
+    }
+
+    [Fact]
+    public async Task Lookup_endpoint_returns_502_when_the_weather_provider_fails()
+    {
+        var store = new FakeStore();
+        var provider = new FakeProvider(null, new HttpRequestException("network failure"));
+        var service = new WeatherLookupService(provider, new RecentSearchService(store));
+
+        var result = await Program.LookupAsync("Victoria", "CA", service, CancellationToken.None);
+        var statusResult = Assert.IsAssignableFrom<IStatusCodeHttpResult>(result);
+
+        Assert.Equal(StatusCodes.Status502BadGateway, statusResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Lookup_endpoint_returns_404_when_the_provider_has_no_city()
+    {
+        var service = CreateService(null);
+
+        var result = await Program.LookupAsync("Zzzzqx", null, service, CancellationToken.None);
+        var statusResult = Assert.IsAssignableFrom<IStatusCodeHttpResult>(result);
+
+        Assert.Equal(StatusCodes.Status404NotFound, statusResult.StatusCode);
     }
 }

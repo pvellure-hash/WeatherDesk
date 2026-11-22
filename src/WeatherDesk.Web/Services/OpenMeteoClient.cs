@@ -10,14 +10,14 @@ public class OpenMeteoClient : IWeatherProvider
 {
     public async Task<WeatherReading?> GetCurrentAsync(string city, string? countryCode, CancellationToken cancellationToken = default)
     {
-        var location = FindLocation(city, countryCode);
+        var location = await FindLocation(city, countryCode, cancellationToken);
         if (location == null)
         {
             return null;
         }
 
         // var client = _factory.CreateClient("openmeteo");
-        var client = new HttpClient();
+        using var client = new HttpClient();
         var url = "https://api.open-meteo.com/v1/forecast?latitude=" + location.Latitude
             + "&longitude=" + location.Longitude
             + "&current=temperature_2m,wind_speed_10m&timezone=auto";
@@ -27,16 +27,16 @@ public class OpenMeteoClient : IWeatherProvider
         return new WeatherReading(location.Name, location.Country, current.TemperatureC, current.WindKmh, current.ObservedAt);
     }
 
-    private GeoLocation? FindLocation(string city, string? countryCode)
+    private static async Task<GeoLocation?> FindLocation(string city, string? countryCode, CancellationToken cancellationToken)
     {
-        var client = new HttpClient();
+        using var client = new HttpClient();
         var url = "https://geocoding-api.open-meteo.com/v1/search?name=" + city + "&count=1&language=en&format=json";
         if (!string.IsNullOrEmpty(countryCode))
         {
             url += "&countryCode=" + countryCode;
         }
 
-        var json = client.GetStringAsync(url).Result;
+        var json = await client.GetStringAsync(url, cancellationToken);
         return OpenMeteoParser.ParseGeocoding(json);
     }
 }
