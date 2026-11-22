@@ -2,8 +2,8 @@ using WeatherDesk.Core.Abstractions;
 using WeatherDesk.Core.Models;
 using WeatherDesk.Core.Providers;
 using WeatherDesk.Core.Services;
-using WeatherDesk.Web;
 using Microsoft.AspNetCore.Http;
+using WeatherDesk.Web;
 
 namespace WeatherDesk.Tests;
 
@@ -152,6 +152,7 @@ public class WeatherLookupServiceTests
         var result = await service.LookupAsync("Victoria", "CA");
 
         Assert.Equal(LookupStatus.UpstreamError, result.Status);
+        Assert.Equal("The weather service is currently unavailable.", result.Error);
         Assert.DoesNotContain("network failure", result.Error);
     }
 
@@ -163,10 +164,9 @@ public class WeatherLookupServiceTests
         var service = new WeatherLookupService(provider, new RecentSearchService(store));
 
         var result = await Program.LookupAsync("Victoria", "CA", service, CancellationToken.None);
-        var context = new DefaultHttpContext();
-        await result.ExecuteAsync(context);
+        var statusResult = Assert.IsAssignableFrom<IStatusCodeHttpResult>(result);
 
-        Assert.Equal(StatusCodes.Status502BadGateway, context.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status502BadGateway, statusResult.StatusCode);
     }
 
     [Fact]
@@ -175,9 +175,8 @@ public class WeatherLookupServiceTests
         var service = CreateService(null);
 
         var result = await Program.LookupAsync("Zzzzqx", null, service, CancellationToken.None);
-        var context = new DefaultHttpContext();
-        await result.ExecuteAsync(context);
+        var statusResult = Assert.IsAssignableFrom<IStatusCodeHttpResult>(result);
 
-        Assert.Equal(StatusCodes.Status404NotFound, context.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status404NotFound, statusResult.StatusCode);
     }
 }

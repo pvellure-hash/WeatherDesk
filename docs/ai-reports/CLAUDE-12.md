@@ -30,4 +30,4 @@ This follow-up replaces the separate endpoint and unnecessary client/project cha
 
 The pipeline build identified invalid ASP.NET status constants in the tests. This correction uses `StatusCodes.Status404NotFound` for the 404 endpoint assertion and keeps `StatusCodes.Status502BadGateway` for the 502 assertion.
 
-The follow-up instruction also directed this work to ignore the failing 404 endpoint test, so that test was not changed or weakened.
+The endpoint tests initially executed `IResult` objects with an empty `DefaultHttpContext`, causing ASP.NET to require a missing `IResultExecutor` provider. This correction inspects `IStatusCodeHttpResult.StatusCode` directly after invoking `Program.LookupAsync`, preserving endpoint-level 502 and 404 coverage.

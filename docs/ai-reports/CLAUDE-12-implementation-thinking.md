@@ -32,4 +32,4 @@ The change affects only lookup outage handling. Caller cancellation continues to
 ## Correction
 The follow-up fixes the 404 endpoint assertion by using `StatusCodes.Status404NotFound`, the valid ASP.NET Core constant for HTTP 404.
 
-The follow-up instruction says to ignore the failing 404 endpoint test and proceed, so no test was changed in this pass.
+The validation correction removes `ExecuteAsync` from both endpoint tests and asserts `IStatusCodeHttpResult.StatusCode` instead. The tests still call `Program.LookupAsync`, so they cover the endpoint mapping without constructing an unconfigured `DefaultHttpContext`.

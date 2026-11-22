@@ -23,4 +23,4 @@ The follow-up removes the unnecessary extracted endpoint file and client changes
 
 The build correction replaces the unavailable `StatusCodes.StatusNotFound` test constant with `StatusCodes.Status404NotFound`.
 
-The follow-up also says to ignore the failing 404 endpoint test, so this correction leaves that test unchanged.
+The endpoint tests also failed because `ExecuteAsync` required an ASP.NET `IResultExecutor` provider that the direct test context did not contain. The correction asserts `IStatusCodeHttpResult.StatusCode` after calling `Program.LookupAsync`, retaining endpoint-level 502 and 404 coverage without a fake host.
