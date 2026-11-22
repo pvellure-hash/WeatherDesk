@@ -6,10 +6,11 @@ namespace WeatherDesk.Tests;
 public class TemperatureConverterTests
 {
     [Theory]
+    [InlineData(21.7, 71.1)]
     [InlineData(0.0, 32.0)]
-    [InlineData(100.0, 212.0)]
     [InlineData(-40.0, -40.0)]
-    public void Converts_whole_degree_values(double celsius, double expectedFahrenheit)
+    [InlineData(-10.5, 13.1)]
+    public void Converts_temperatures_to_one_decimal(double celsius, double expectedFahrenheit)
     {
         Assert.Equal(expectedFahrenheit, TemperatureConverter.CelsiusToFahrenheit(celsius));
     }
