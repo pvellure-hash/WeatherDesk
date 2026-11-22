@@ -32,18 +32,7 @@ app.UseStaticFiles();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
-app.MapGet("/api/weather", async (string? city, string? country, WeatherLookupService lookup, CancellationToken ct) =>
-{
-    var result = await lookup.LookupAsync(city, country, ct);
-
-    return result.Status switch
-    {
-        LookupStatus.Ok => Results.Ok(result.Report),
-        LookupStatus.InvalidInput => Results.BadRequest(new { error = result.Error }),
-        LookupStatus.NotFound => Results.NotFound(new { error = result.Error }),
-        _ => Results.Problem(result.Error)
-    };
-});
+app.MapGet("/api/weather", Program.LookupAsync);
 
 app.MapGet("/api/compare", async (string? cities, WeatherLookupService lookup, CancellationToken ct) =>
 {
@@ -65,3 +54,28 @@ app.MapGet("/api/compare", async (string? cities, WeatherLookupService lookup, C
 app.MapGet("/api/recent", (RecentSearchService recent) => Results.Ok(recent.GetRecent()));
 
 app.Run();
+
+public partial class Program
+{
+    public static async Task<IResult> LookupAsync(
+        string? city,
+        string? country,
+        WeatherLookupService lookup,
+        CancellationToken ct)
+    {
+        var result = await lookup.LookupAsync(city, country, ct);
+
+        return result.Status switch
+        {
+            LookupStatus.Ok => Results.Ok(result.Report),
+            LookupStatus.InvalidInput => Results.BadRequest(new { error = result.Error }),
+            LookupStatus.NotFound => Results.NotFound(new { error = result.Error }),
+            LookupStatus.UpstreamError => Results.Json(
+                new { error = result.Error },
+                statusCode: StatusCodes.Status502BadGateway),
+            _ => Results.Json(
+                new { error = "The weather service is currently unavailable." },
+                statusCode: StatusCodes.Status502BadGateway)
+        };
+    }
+}

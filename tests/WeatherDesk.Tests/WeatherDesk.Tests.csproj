@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\WeatherDesk.Core\WeatherDesk.Core.csproj" />
+    <ProjectReference Include="..\..\src\WeatherDesk.Web\WeatherDesk.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
