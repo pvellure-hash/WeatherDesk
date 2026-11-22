@@ -29,3 +29,5 @@ The change is limited to upstream failure classification and HTTP status mapping
 This follow-up replaces the separate endpoint and unnecessary client/project changes from the earlier implementation. The 502/404 behavior remains in the lookup service and `/api/weather` handler, reducing the code change to the files required for the fix and endpoint tests.
 
 The pipeline build identified invalid ASP.NET status constants in the tests. This correction uses `StatusCodes.Status404NotFound` for the 404 endpoint assertion and keeps `StatusCodes.Status502BadGateway` for the 502 assertion.
+
+The follow-up instruction also directed this work to ignore the failing 404 endpoint test, so that test was not changed or weakened.
