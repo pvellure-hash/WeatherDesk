@@ -72,10 +72,10 @@ public partial class Program
             LookupStatus.NotFound => Results.NotFound(new { error = result.Error }),
             LookupStatus.UpstreamError => Results.Json(
                 new { error = result.Error },
-                statusCode: StatusCodes.StatusBadGateway),
+                statusCode: StatusCodes.Status502BadGateway),
             _ => Results.Json(
                 new { error = "The weather service is currently unavailable." },
-                statusCode: StatusCodes.StatusBadGateway)
+                statusCode: StatusCodes.Status502BadGateway)
         };
     }
 }
