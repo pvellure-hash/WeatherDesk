@@ -20,3 +20,5 @@ Network, timeout, and HTTP server failures are surfaced by the provider as excep
 
 ## Correction
 The follow-up removes the unnecessary extracted endpoint file and client changes. The handler remains in `Program.cs`, with only the lookup service and endpoint-level tests changed for the defect.
+
+The build correction replaces the unavailable `StatusCodes.StatusNotFound` test constant with `StatusCodes.Status404NotFound`.

@@ -178,6 +178,6 @@ public class WeatherLookupServiceTests
         var context = new DefaultHttpContext();
         await result.ExecuteAsync(context);
 
-        Assert.Equal(StatusCodes.StatusNotFound, context.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status404NotFound, context.Response.StatusCode);
     }
 }
