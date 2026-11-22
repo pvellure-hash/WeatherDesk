@@ -166,7 +166,7 @@ public class WeatherLookupServiceTests
         var context = new DefaultHttpContext();
         await result.ExecuteAsync(context);
 
-        Assert.Equal(StatusCodes.StatusBadGateway, context.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status502BadGateway, context.Response.StatusCode);
     }
 
     [Fact]
