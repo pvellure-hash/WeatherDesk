@@ -26,11 +26,11 @@ Copies replaced: None; the repository was already at 11.0.0.
 Configuration changed: None.
 Call sites reviewed:
 - `src/WeatherDesk.Core/Providers/OpenMeteoParser.cs`: no change needed; this ticket is not a library version move, and `JsonDocument.Parse`, `TryGetProperty`, `GetProperty`, `GetString`, and `GetDouble` remain compatible.
-Tests added: Unit: none; existing `tests/WeatherDesk.Tests/ProviderAndServiceTests.cs` covers ordinary, negative, and zero forecast values in `OpenMeteoParserTests`. Integration: none.
+Tests added: Unit: `tests/WeatherDesk.Tests/ProviderAndServiceTests.cs` adds missing-optional-country JSON coverage in `OpenMeteoParserTests`; existing cases cover ordinary, negative, and zero forecast values. Integration: none.
 Needs a person: Run `dotnet restore --force-evaluate`, `dotnet build WeatherDesk.sln --nologo`, `dotnet test WeatherDesk.sln --nologo --no-build`, and `dotnet list WeatherDesk.sln package --vulnerable --include-transitive`. No lock file was found, so `dotnet restore --force-evaluate` is the exact command to regenerate dependency state if a lock file is later introduced.
 
 ## Tests
-Existing `OpenMeteoParserTests.Reads_the_current_weather` covers ordinary forecast parsing. Existing `OpenMeteoParserTests.Reads_zero_and_negative_forecast_values` covers negative Celsius and zero wind boundary parsing.
+`OpenMeteoParserTests.Reads_geocoding_when_optional_country_is_missing` covers missing optional country JSON handling. Existing `OpenMeteoParserTests.Reads_the_current_weather` covers ordinary forecast parsing. Existing `OpenMeteoParserTests.Reads_zero_and_negative_forecast_values` covers negative Celsius and zero wind boundary parsing.
 
 ## Commands
 The build command `dotnet build WeatherDesk.sln --nologo` was attempted but blocked by the environment before execution. No test or vulnerable-package command was executed.

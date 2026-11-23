@@ -9,7 +9,7 @@ This dependency security ticket records that System.Text.Json is already at the 
 - Document the repository-wide package search, call-site review, and validation handoff.
 
 ## Testing
-- Existing parser tests cover ordinary, negative, and zero forecast values.
+- Parser tests cover missing optional country data plus ordinary, negative, and zero forecast values.
 - Build, test, and vulnerable-package validation must run in the pipeline.
 
 ## Jira

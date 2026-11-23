@@ -16,7 +16,7 @@ The vulnerable 8.0.3 package was not present in the current package declarations
 | `docs/ai-reports/CLAUDE-15-implementation-thinking.md` | Record the implementation reasoning and changed-file table. |
 
 ## Test Strategy
-Existing parser tests cover ordinary forecast parsing and the negative Celsius/zero wind boundaries. No source call site changed, so no new unit or integration test was added.
+The new parser test covers missing optional country data and null handling. Existing tests cover ordinary forecast parsing and the negative Celsius/zero wind boundaries.
 
 ## Validation
 The pipeline must run `dotnet restore --force-evaluate`, `dotnet build WeatherDesk.sln --nologo`, `dotnet test WeatherDesk.sln --nologo --no-build`, and `dotnet list WeatherDesk.sln package --vulnerable --include-transitive`.
