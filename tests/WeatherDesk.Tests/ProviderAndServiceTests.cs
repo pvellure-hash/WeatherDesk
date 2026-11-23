@@ -37,6 +37,21 @@ public class OpenMeteoParserTests
     }
 
     [Fact]
+    public void Reads_geocoding_when_optional_country_is_missing()
+    {
+        const string json = """
+            {"results":[{"name":"Victoria","latitude":48.4284,"longitude":-123.3656,"admin1":"British Columbia"}]}
+            """;
+
+        var location = OpenMeteoParser.ParseGeocoding(json);
+
+        Assert.NotNull(location);
+        Assert.Equal("Victoria", location.Name);
+        Assert.Null(location.Country);
+        Assert.Equal("British Columbia", location.Region);
+    }
+
+    [Fact]
     public void Reads_the_current_weather()
     {
         var current = OpenMeteoParser.ParseForecast(ForecastSample);
