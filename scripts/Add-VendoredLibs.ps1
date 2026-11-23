@@ -10,7 +10,7 @@ $lib  = Join-Path $root 'src\WeatherDesk.Web\wwwroot\lib'
 
 $files = @(
   @{ Url = 'https://code.jquery.com/jquery-3.4.1.min.js';                                         Path = 'jquery\jquery.min.js' },
-  @{ Url = 'https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js';       Path = 'jquery-validate\jquery.validate.js' }
+  @{ Url = 'https://cdn.jsdelivr.net/npm/jquery-validation@1.22.1/dist/jquery.validate.js';       Path = 'jquery-validate\jquery.validate.js' }
 )
 
 foreach ($f in $files) {
