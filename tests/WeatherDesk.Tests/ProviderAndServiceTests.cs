@@ -45,6 +45,20 @@ public class OpenMeteoParserTests
         Assert.Equal(12.6, current.WindKmh, 1);
         Assert.Equal("2026-11-19T10:15", current.ObservedAt);
     }
+
+    [Fact]
+    public void Reads_zero_and_negative_forecast_values()
+    {
+        const string json = """
+            {"current":{"time":"2026-11-19T10:15","temperature_2m":-10.5,"wind_speed_10m":0}}
+            """;
+
+        var current = OpenMeteoParser.ParseForecast(json);
+
+        Assert.Equal(-10.5, current.TemperatureC, 1);
+        Assert.Equal(0, current.WindKmh, 1);
+        Assert.Equal("2026-11-19T10:15", current.ObservedAt);
+    }
 }
 
 public class RecentSearchServiceTests
